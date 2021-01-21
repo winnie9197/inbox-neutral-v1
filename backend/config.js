@@ -1,8 +1,8 @@
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 
 dotenv.config();
 
-module.exports = {
+export default {
   PORT: process.env.PORT || 5000,
   MONGODB_URL: process.env.MONGODB_URL || 'mongodb://localhost/IN-prototype',
 //   JWT_SECRET: process.env.JWT_SECRET || 'somethingsecret',

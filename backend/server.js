@@ -1,8 +1,9 @@
-const express = require('express');
-const userRoute = require('./routes/userRoute');
-const mongoose = require('mongoose');
-const config = require('./config');
+import express from 'express';
+import mongoose from 'mongoose';
+import config from './config.js';
+import data from './data.js';
 
+// import userRoute from './routes/userRoute';
 // const logger = require('./config/logger');
 
 let server;
@@ -24,6 +25,14 @@ app.get('/', function (req, res) {
  return res.send('Hello world');
 });
 
+// Auth
+
+app.get('/auth/google', (req, res) => {
+  return res.send(data.users);
+});
+
+
+// Users
 app.get('/users', (req, res) => {
     return res.send('GET HTTP method on user resource');
   });
@@ -44,4 +53,7 @@ return res.send(
 );
 });
 
-app.listen(process.env.PORT || 5000);
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log(`Server at http://localhost:${port}`);
+});
