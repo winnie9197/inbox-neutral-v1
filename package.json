@@ -1,0 +1,32 @@
+{
+  "name": "inbox-neutral-prototype",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "google-auth-library": "^6.1.4",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.11.12"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  },
+  "scripts": {
+    "start": "nodemon --watch backend node backend/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/winnie9197/inbox-neutral-v1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/winnie9197/inbox-neutral-v1/issues"
+  },
+  "homepage": "https://github.com/winnie9197/inbox-neutral-v1#readme"
+}
