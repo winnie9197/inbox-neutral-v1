@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import config from './config.js';
 import data from './data.js';
+import bodyParser from 'body-parser';
 
 // import userRoute from './routes/userRoute';
 // const logger = require('./config/logger');
@@ -18,6 +19,8 @@ mongoose
   .catch((error) => console.log(error.reason));
 
 const app = express();
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // app.use('/users', userRoute);
 
@@ -26,11 +29,16 @@ app.get('/', function (req, res) {
 });
 
 // Auth
-
 app.get('/auth/google', (req, res) => {
   return res.send(data.users);
 });
 
+app.post('/auth/google', (req, res) => {
+  console.log(req.params);
+  console.log('Got body: ', req.body.code);
+  // res.sendStatus(200);
+  return res.send(data.users);
+});
 
 // Users
 app.get('/users', (req, res) => {
