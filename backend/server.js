@@ -30,23 +30,29 @@ app.get('/', function (req, res) {
 });
 
 // Auth
+const googleAuthClient = new OAuth2Client(
+  config.CLIENT_ID,
+  config.CLIENT_SECRET,
+);
+
 app.get('/auth/google', (req, res) => {
   return res.send(data.users);
 });
 
-// const googleAuthClient = new OAuth2Client(
-//   config.CLIENT_ID,
-//   config.CLIENT_SECRET,
-//   config.AUTH_REDIRECT_URL
-// );
-
-app.post('/auth/google', (req, res) => {
+app.post('/auth/google', async (req, res) => {
   console.log(req.params);
   console.log('Got body: ', req.body.code);
+  const authorizationCode = req.body.code;
 
-  // use req.body.code to retrieve user, then send user back to frontend.
+  // use req.body.code to retrieve user, then send basic user info back to frontend.
 
   // after retrieving authorization code, handle and get token.
+  
+  // Give access to a Google client
+  const { tokens } = await googleAuthClient.getToken(authorizationCode);
+  googleAuthClient.setCredentials(tokens);
+  // At this point, Google client should be authorized anywhere in server.
+  
 
 
 
@@ -55,15 +61,18 @@ app.post('/auth/google', (req, res) => {
   return res.send(data.users);
 });
 
-// function getAuthenticatedClient() {
+// include this function when verifying login status
+function updateRefreshToken() {
+  oauth2Client.on('tokens', (tokens) => {
+    if (tokens.refresh_token) {
+      // store the refresh_token in my database!
+      // ...
 
-
-//   // Generate the url that will be used for the consent dialog.
-//   const authorizeUrl = oAuth2Client.generateAuthUrl({
-//     access_type: 'offline',
-//     scope: 'https://www.googleapis.com/auth/userinfo.profile',
-//   });
-// }
+      console.log(tokens.refresh_token);
+    }
+    console.log(tokens.access_token);
+  });
+}
 
 // Users
 app.get('/users', (req, res) => {
