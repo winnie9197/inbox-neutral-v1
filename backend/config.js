@@ -1,8 +1,8 @@
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 
 dotenv.config();
 
-export default {
+module.exports = {
   PORT: process.env.PORT || 5000,
   MONGODB_URL: process.env.MONGODB_URL || 'mongodb://localhost/IN-prototype',
   CLIENT_ID: process.env.REACT_APP_CLIENT_ID || 'id',

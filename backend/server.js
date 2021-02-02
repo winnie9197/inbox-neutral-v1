@@ -1,10 +1,9 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import config from './config.js';
-import data from './data.js';
-import bodyParser from 'body-parser';
-import OAuth2Client from 'google-auth-library';
-
+const express = require('express');
+const mongoose = require('mongoose');
+const config = require('./config.js');
+const data = require('./data.js');
+const bodyParser = require('body-parser');
+const { OAuth2Client } = require('google-auth-library');
 
 // import userRoute from './routes/userRoute';
 // const logger = require('./config/logger');
@@ -34,20 +33,19 @@ app.get('/auth/google', (req, res) => {
   return res.send(data.users);
 });
 
-// const googleAuthClient = new OAuth2Client(
-//   config.CLIENT_ID,
-//   config.CLIENT_SECRET,
-//   config.AUTH_REDIRECT_URL
-// );
 
 app.post('/auth/google', (req, res) => {
-  console.log(req.params);
+  console.log(req);
   console.log('Got body: ', req.body.code);
 
   // use req.body.code to retrieve user, then send user back to frontend.
 
   // after retrieving authorization code, handle and get token.
-
+  const googleAuthClient = new OAuth2Client(
+    config.CLIENT_ID,
+    config.CLIENT_SECRET,
+    config.AUTH_REDIRECT_URL
+  );
 
 
 
