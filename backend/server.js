@@ -9,6 +9,12 @@ const { OAuth2Client } = require('google-auth-library');
 // const logger = require('./config/logger');
 let server;
 
+const client_id = config.CLIENT_ID;
+// const auth_redirect_url = config.AUTH_REDIRECT_URL;
+const auth_redirect_url = 'postmessage';
+const client_secret = config.CLIENT_SECRET;
+
+
 const mongodbUrl = config.MONGODB_URL;
 mongoose
   .connect(mongodbUrl, {
@@ -33,24 +39,45 @@ app.get('/auth/google', (req, res) => {
   return res.send(data.users);
 });
 
-
-app.post('/auth/google', (req, res) => {
+app.post('/auth/google', async (req, res) => {
   console.log(req);
+
+  const googleAuthClient = new OAuth2Client(
+    client_id,
+    client_secret,
+    auth_redirect_url
+  );
+
+  // console.log(req);
   console.log('Got body: ', req.body.code);
+
+  const code = req.body.code;
+  console.log(`Code is ${code}`);
 
   // use req.body.code to retrieve user, then send user back to frontend.
 
   // after retrieving authorization code, handle and get token.
-  const googleAuthClient = new OAuth2Client(
-    config.CLIENT_ID,
-    config.CLIENT_SECRET,
-    config.AUTH_REDIRECT_URL
-  );
+  try {
+    if (code != null) { 
+      const r = await googleAuthClient.getToken({
+        code,
+      });
+      console.log(r);
 
+      googleAuthClient.setCredentials(r.tokens);
+      console.log('Tokens acquired.');
+      
 
-
-  // res.sendStatus(200);
-  return res.send(data.users);
+      //Then store and save access_token and refresh token in server
+      return res.send('Authentication successful!');
+    }
+  } catch (e) {
+    
+    res.status(700);
+    console.log(e);
+    return res.send(e);
+  }
+  
 });
 
 // function getAuthenticatedClient() {

@@ -6,10 +6,11 @@ const data = {
       google: {
         name: '',
         email: 'admin@example.com',
+        access_token: '',
+        refresh_token: ''
       },
       totalSavingsInBytes: 150000,
-      token: '',
-    },
+    }
   ],
 };
 module.exports = data;
