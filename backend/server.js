@@ -4,25 +4,19 @@ const config = require('./config.js');
 const data = require('./data.js');
 const bodyParser = require('body-parser');
 const { OAuth2Client } = require('google-auth-library');
+// import models, { connectDb } from './models';
+const models = require('./models').models;
+const connectDb = require('./models').connectDb;
 
 // import userRoute from './routes/userRoute';
 // const logger = require('./config/logger');
 let server;
 
 const client_id = config.CLIENT_ID;
-// const auth_redirect_url = config.AUTH_REDIRECT_URL;
 const auth_redirect_url = 'postmessage';
 const client_secret = config.CLIENT_SECRET;
 
 
-const mongodbUrl = config.MONGODB_URL;
-mongoose
-  .connect(mongodbUrl, {
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .catch((error) => console.log(error.reason));
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -36,7 +30,7 @@ app.get('/', function (req, res) {
 
 // Auth
 app.get('/auth/google', (req, res) => {
-  return res.send(data.users);
+  // return res.send(data.users);
 });
 
 app.post('/auth/google', async (req, res) => {
@@ -66,29 +60,45 @@ app.post('/auth/google', async (req, res) => {
 
       googleAuthClient.setCredentials(r.tokens);
       console.log('Tokens acquired.');
-      
-
-      //Then store and save access_token and refresh token in server
-      return res.send('Authentication successful!');
+      saveAuthenticatedUser(r.tokens);
+      res.send('Authentication successful!');
     }
   } catch (e) {
     
     res.status(700);
     console.log(e);
-    return res.send(e);
+    res.send(e);
   }
+
+  //Then store and save access_token and refresh token in database
+
+
+  return;
   
 });
 
-// function getAuthenticatedClient() {
+async function saveAuthenticatedUser(tokens) {
+  //Google: get User name, & email
+
+  //+ Mongoose code here: create new User(), and save
+  try {
+    const user = new models.User ({
+      name: 'User1',
+      email: 'user1@gmail.com',
+      access_token: 'access_token',
+      refresh_token: 'refresh_token',
+    });
+
+    const doc = await user.save()
+    console.log(doc);
+  } catch (error) {
+    console.error(error);
+  }
+  
 
 
-//   // Generate the url that will be used for the consent dialog.
-//   const authorizeUrl = oAuth2Client.generateAuthUrl({
-//     access_type: 'offline',
-//     scope: 'https://www.googleapis.com/auth/userinfo.profile',
-//   });
-// }
+  
+}
 
 // Users
 app.get('/users', (req, res) => {
@@ -110,6 +120,24 @@ return res.send(
     `DELETE HTTP method on user/${req.params.userId} resource`,
 );
 });
+
+
+// Database
+const mongodbUrl = config.MONGODB_URL;
+mongoose.connect(mongodbUrl, {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).catch((error) => console.log(error.reason));
+
+// verify if the connction is made
+const db = mongoose.connection;
+db.on('connected', () => {
+  console.log('Database connected')
+});
+db.on('error', err => {
+  console.error('connection error:', err)
+})
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
