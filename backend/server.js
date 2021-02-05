@@ -1,16 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const config = require('./config.js');
-const data = require('./data.js');
+// const data = require('./data.js');
 const bodyParser = require('body-parser');
+const request = require('request');
+
 const { OAuth2Client } = require('google-auth-library');
-// import models, { connectDb } from './models';
+var google = require('googleapis').google;
 const models = require('./models').models;
 const connectDb = require('./models').connectDb;
 
 // import userRoute from './routes/userRoute';
-// const logger = require('./config/logger');
-let server;
 
 const client_id = config.CLIENT_ID;
 const auth_redirect_url = 'postmessage';
@@ -60,7 +60,7 @@ app.post('/auth/google', async (req, res) => {
 
       googleAuthClient.setCredentials(r.tokens);
       console.log('Tokens acquired.');
-      saveAuthenticatedUser(r.tokens);
+      await saveAuthenticatedUser(googleAuthClient, r.tokens);
       res.send('Authentication successful!');
     }
   } catch (e) {
@@ -77,24 +77,67 @@ app.post('/auth/google', async (req, res) => {
   
 });
 
-async function saveAuthenticatedUser(tokens) {
-  //Google: get User name, & email
-
-  //+ Mongoose code here: create new User(), and save
+async function saveAuthenticatedUser(client, tokens) {
+  //Google: get User name, & email from Gmail API
   try {
-    const user = new models.User ({
-      name: 'User1',
-      email: 'user1@gmail.com',
-      access_token: 'access_token',
-      refresh_token: 'refresh_token',
-    });
+    // const client = await google.auth.getClient();
+    const oauth2 = google.oauth2('v2');
+    // var oauth2 = google.oauth2({
+    //   version: 'v2',
+    //   auth: googleAuthClient
+    // });
+  
+    const profile = await oauth2.userinfo.get({ auth: client },
+      async (err, res) => {
+        if (err) {
+           console.log(err);
+        } else {
+           console.log(res.data);
 
-    const doc = await user.save()
-    console.log(doc);
+           // got all data here
+
+           //+ Mongoose code here: create new User(), and save
+          try {
+
+            // check if there's an existing entry
+            
+            await models.User.findOne({ email: res.data.email }, 
+              async (err, user) => {
+
+                if (err) {
+                  throw(err);
+                }
+
+                if (user) {
+                  console.log("This user has already been saved previously.");
+
+                  //update access_token / refresh_token
+
+                } else {
+
+                  const user = new models.User ({
+                    name: res.data.name,
+                    email: res.data.email,
+                    access_token: 'access_token',
+                    refresh_token: 'refresh_token',
+                  });
+                  
+                  const result = await user.save();
+                  console.log(result);
+
+              }
+            });
+          } catch (error) {
+            console.error(error);
+          }
+          
+        }
+    });
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
   
+
 
 
   
