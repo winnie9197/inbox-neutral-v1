@@ -23,13 +23,14 @@ const getAuthenticatedUser = async (client, tokens) => {
       }
       // got all data here
       console.log("update complete.")
-      
     }
+
+    return profile;
 
   } catch (error) {
     console.log(error);
   }
-  
+  return ;
 }
 
 const addDatabaseUser = async (data, tokens) => {

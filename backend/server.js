@@ -8,12 +8,17 @@ const request = require('request');
 const { OAuth2Client } = require('google-auth-library');
 
 const login = require('./utils/userLogin');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 
 // import userRoute from './routes/userRoute';
 
 const client_id = config.CLIENT_ID;
 const auth_redirect_url = 'postmessage';
 const client_secret = config.CLIENT_SECRET;
+const session_secret = config.SESSION_SECRET;
+
+
 
 // Setup Google client
 const googleAuthClient = new OAuth2Client(
@@ -31,6 +36,33 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// Database
+const mongodbUrl = config.MONGODB_URL;
+mongoose.connect(mongodbUrl, {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).catch((error) => console.log(error.reason));
+
+// verify if the connction is made
+const db = mongoose.connection;
+db.on('connected', () => {
+  console.log('Database connected')
+});
+db.on('error', err => {
+  console.error('connection error:', err)
+})
+
+// Session Storage
+app.use(session({
+  secret: session_secret,
+  resave: false,
+  saveUninitialized: false,
+  store: new MongoStore({ mongooseConnection: mongoose.connection })
+}));
+
+
+
 // app.use('/users', userRoute);
 
 app.get('/', function (req, res) {
@@ -40,14 +72,18 @@ app.get('/', function (req, res) {
 // Auth
 app.get('/auth/google', (req, res) => {
   // return res.send(data.users);
+
 });
 
 app.post('/auth/google', async (req, res) => {
+
   console.log(req);
   console.log('Got body: ', req.body.code);
 
   const code = req.body.code;
   console.log(`Code is ${code}`);
+
+  // Session
 
   // use req.body.code to retrieve user, then send user back to frontend.
 
@@ -63,8 +99,21 @@ app.post('/auth/google', async (req, res) => {
       //Then store and save access_token and refresh token in database
       googleAuthClient.setCredentials(r.tokens);
       console.log('Tokens acquired.');
-      await login.getAuthenticatedUser(googleAuthClient, r.tokens);
-      res.send('Authentication successful!');
+      const profile = await login.getAuthenticatedUser(googleAuthClient, r.tokens);
+      // res.send('Authentication successful!');
+      
+      if (profile) {
+        // Session
+        req.session.email = profile.data.email;
+        if (req.session.email) {
+          res.redirect('/options');
+          
+        } else {
+          //redo authentication
+          console.log("retry authentication");
+        }
+      }
+      
     }
   } catch (e) {
     
@@ -101,25 +150,9 @@ return res.send(
 });
 
 
-// Database
-const mongodbUrl = config.MONGODB_URL;
-mongoose.connect(mongodbUrl, {
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).catch((error) => console.log(error.reason));
-
-// verify if the connction is made
-const db = mongoose.connection;
-db.on('connected', () => {
-  console.log('Database connected')
-});
-db.on('error', err => {
-  console.error('connection error:', err)
-})
-
-
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`Server at http://localhost:${port}`);
 });
+
+module.exports = app;
