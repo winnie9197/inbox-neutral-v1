@@ -71,8 +71,11 @@ app.get('/', function (req, res) {
 
 // Auth
 app.get('/auth/google', (req, res) => {
-  // return res.send(data.users);
-
+  res.setHeader('Content-Type', 'application/json');
+  console.log(req.session);
+  if (req.session.email) 
+    return res.send({loggedIn: true, userName: req.session.name});
+  return res.send({loggedIn: false});
 });
 
 app.post('/auth/google', async (req, res) => {
@@ -94,36 +97,41 @@ app.post('/auth/google', async (req, res) => {
       const r = await googleAuthClient.getToken({
         code,
       });
-      console.log(r);
+      // console.log(r);
 
       //Then store and save access_token and refresh token in database
-      googleAuthClient.setCredentials(r.tokens);
+      // googleAuthClient.setCredentials(r.tokens);
+      googleAuthClient.credentials = r.tokens;
       console.log('Tokens acquired.');
       const profile = await login.getAuthenticatedUser(googleAuthClient, r.tokens);
-      // res.send('Authentication successful!');
       
       if (profile) {
         // Session
         req.session.email = profile.data.email;
         if (req.session.email) {
-          res.redirect('/options');
+          req.session.name = profile.data.name;
+          res.send({response: 'Authentication successful!', loggedIn: true, userName: req.session.name});
           
         } else {
           //redo authentication
           console.log("retry authentication");
         }
       }
-      
     }
   } catch (e) {
     
     res.status(700);
     console.log(e);
-    res.send(e);
+    res.send({ error: e });
   }
 
   return;
   
+});
+
+app.get('/auth/google/logout', (req, res) => {
+    req.session.destroy();
+    res.send({response: "Session destroyed."});
 });
 
 
