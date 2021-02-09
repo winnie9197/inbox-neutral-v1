@@ -88,7 +88,7 @@ app.post('/auth/google', async (req, res) => {
 
   // Session
 
-  // use req.body.code to retrieve user, then send user back to frontend.
+  // use req.body.code to retrieve user, then send user info back to frontend.
 
   try {
     if (code != null) { 
