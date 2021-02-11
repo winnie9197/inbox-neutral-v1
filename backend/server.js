@@ -74,7 +74,12 @@ app.get('/auth/google', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   console.log(req.session);
   if (req.session.email) 
-    return res.send({loggedIn: true, userName: req.session.name});
+    return res.send({
+      loggedIn: true, 
+      userName: req.session.name, 
+      userId: req.session.userId,
+      accessToken: req.session.access_token
+    });
   return res.send({loggedIn: false});
 });
 
@@ -110,7 +115,16 @@ app.post('/auth/google', async (req, res) => {
         req.session.email = profile.data.email;
         if (req.session.email) {
           req.session.name = profile.data.name;
-          res.send({response: 'Authentication successful!', loggedIn: true, userName: req.session.name});
+          req.session.userId = profile.data.id;
+          req.session.access_token = r.tokens.access_token;
+          
+          res.send({
+            response: 'Authentication successful!', 
+            loggedIn: true, 
+            userName: req.session.name,
+            userId: req.session.userId,
+            accessToken: req.session.access_token
+          });
           
         } else {
           //redo authentication
