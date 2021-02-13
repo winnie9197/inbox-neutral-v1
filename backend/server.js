@@ -5,6 +5,7 @@ const config = require('./config.js');
 const bodyParser = require('body-parser');
 const request = require('request');
 const authRoute = require('./routes/authRoute');
+const userRoute = require('./routes/userRoute');
 
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
@@ -46,38 +47,13 @@ app.use(session({
   store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
-
-
-// app.use('/users', userRoute);
-
 app.get('/', function (req, res) {
  return res.send('Hello world');
 });
 
 // Auth
 app.use('/auth', authRoute);
-
-
-// Users
-app.get('/users', (req, res) => {
-    return res.send('GET HTTP method on user resource');
-  });
-   
-app.post('/users', (req, res) => {
-return res.send('POST HTTP method on user resource');
-});
-
-app.put('/users/:userId', (req, res) => {
-return res.send(
-    `PUT HTTP method on user/${req.params.userId} resource`,
-);
-});
-
-app.delete('/users/:userId', (req, res) => {
-return res.send(
-    `DELETE HTTP method on user/${req.params.userId} resource`,
-);
-});
+app.use('/users', userRoute);
 
 
 const port = process.env.PORT || 5000;
