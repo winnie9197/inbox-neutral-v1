@@ -1,13 +1,33 @@
 const express = require('express');
 const router = express.Router();
+const models = require('../models').models;
 
-router.get('/users', (req, res) => {
-    return res.send('GET HTTP method on user resource');
+router.post('/savings/update', (req, res) => {
+
+    console.log(req.body.byteSize);
+
+    // try {
+    //     // check if there's an existing entry
+    //     if (req.body.byteSize) {  
+    //         const entry = new models.Savings({
+    //         byte_size: req.body.byteSize,
+    //         number_of_messages: req.body.numberOfMessages,
+    //         user: ,
+    //         });
+        
+    //         const result = await entry.save();
+    //         console.log(result);
+    //         return res.send('updated Savings.');
+    //     }
+    // } catch (error) {
+    //     console.error(error);
+    //     return res.send('Cannot update Savings.');
+    // }
+    
+    //update byte_size, number of emails, and user reference
+    
   });
-   
-router.post('/users', (req, res) => {
-return res.send('POST HTTP method on user resource');
-});
+
 
 router.put('/users/:userId', (req, res) => {
 return res.send(

@@ -15,7 +15,7 @@ router.get('/google', (req, res) => {
       });
     return res.send({loggedIn: false});
 });
-  
+
 router.post('/google', async (req, res) => {
   
   
