@@ -14,7 +14,9 @@ const googleAuthClient = new OAuth2Client(
   
 //update refresh token listener
 googleAuthClient.on('tokens', async (tokens) => {
-    await login.getAuthenticatedUser(googleAuthClient, tokens);
+
+    //update database user
+    const profile = await login.getAuthenticatedUser(googleAuthClient, tokens);
 });
 
 module.exports = googleAuthClient;

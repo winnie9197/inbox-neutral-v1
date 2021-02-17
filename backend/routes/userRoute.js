@@ -2,27 +2,27 @@ const express = require('express');
 const router = express.Router();
 const models = require('../models').models;
 
-router.post('/savings/update', (req, res) => {
+router.post('/savings/update', async(req, res) => {
 
     console.log(req.body.byteSize);
-
-    // try {
-    //     // check if there's an existing entry
-    //     if (req.body.byteSize) {  
-    //         const entry = new models.Savings({
-    //         byte_size: req.body.byteSize,
-    //         number_of_messages: req.body.numberOfMessages,
-    //         user: ,
-    //         });
+    // console.log(req.session.user._id);
+    try {
+        // check if there's an existing entry
+        if (req.body.byteSize) {  
+            const entry = new models.Savings({
+                byte_size: req.body.byteSize,
+                number_of_messages: req.body.numberOfMessages,
+                user: req.session.user._id,
+            });
         
-    //         const result = await entry.save();
-    //         console.log(result);
-    //         return res.send('updated Savings.');
-    //     }
-    // } catch (error) {
-    //     console.error(error);
-    //     return res.send('Cannot update Savings.');
-    // }
+            const result = await entry.save();
+            console.log(result);
+            return res.send('updated Savings.');
+        }
+    } catch (error) {
+        console.error(error);
+        return res.send('Cannot update Savings.');
+    }
     
     //update byte_size, number of emails, and user reference
     

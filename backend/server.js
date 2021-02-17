@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const config = require('./config.js');
 // const data = require('./data.js');
 const bodyParser = require('body-parser');
-const request = require('request');
 const authRoute = require('./routes/authRoute');
 const userRoute = require('./routes/userRoute');
 
@@ -54,6 +53,12 @@ app.get('/', function (req, res) {
 // Auth
 app.use('/auth', authRoute);
 app.use('/users', userRoute);
+
+// Middleware to manage Session
+app.use(async (req, res, next) => {
+  const user = await db.user.findFirst({where: { email:  req.session.email }})
+  req.user = user
+})
 
 
 const port = process.env.PORT || 5000;
