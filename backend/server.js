@@ -56,7 +56,7 @@ app.use('/users', userRoute);
 
 // Middleware to manage Session
 app.use(async (req, res, next) => {
-  const user = await db.user.findFirst({where: { email:  req.session.email }})
+  const user = await models.user.findOne({where: { email:  req.session.email }})
   req.user = user
 })
 
